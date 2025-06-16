@@ -31,10 +31,7 @@
     "RESTORE_FILE_BACKUP_ANDROID": "Det ser ut til å være INGEN DATA, men det er en sikkerhetskopi tilgjengelig. Vil du laste den inn?",
     "RESTORE_STRAY_BACKUP": "Under siste synkronisering kan det ha oppstått en feil. Vil du gjenopprette den siste sikkerhetskopien?"
   },
-  "DATETIME_INPUT": {
-    "IN": "om {{time}}",
-    "TOMORROW": "i morgen {{time}}"
-  },
+  "DATETIME_INPUT": {},
   "DATETIME_SCHEDULE": {
     "LATER_TODAY": "Senere i dag",
     "NEXT_WEEK": "Neste uke",
@@ -610,7 +607,9 @@
         "MARK_AS_CHECKED": "Merk oppdateringer som sjekket",
         "STATUS": "Status",
         "SUMMARY": "Sammendrag",
-        "TYPE": "Type"
+        "TYPE": "Type",
+        "ATTACHMENTS": "Vedlegg",
+        "UPLOAD_ATTACHMENT": "Last opp til oppgave"
       },
       "ISSUE_STRINGS": {
         "ISSUE_STR": "arbeidspakke",
@@ -621,7 +620,8 @@
         "POST_TIME_SUCCESS": "OpenProject: Vellykket opprettet tidsoppføring for {{issueTitle}}",
         "TRANSITION": "OpenProject: Sett problem \"{{issueKey}}\" til \"{{name}}\"",
         "TRANSITION_SUCCESS": "OpenProject: Sett problem {{issueKey}} til <strong>{{chosenTransition}}</strong>",
-        "TRANSITIONS_LOADED": "Overganger lastet inn. Bruk valgene nedenfor for å tilordne dem"
+        "TRANSITIONS_LOADED": "Overganger lastet inn. Bruk valgene nedenfor for å tilordne dem",
+        "ERR_NO_FILE": "Ingen fil valgt"
       }
     },
     "PLANNER": {

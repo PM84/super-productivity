@@ -31,10 +31,7 @@
     "RESTORE_FILE_BACKUP_ANDROID": "Er lijken GEEN GEGEVENS te zijn, maar er is een back-up beschikbaar. Wil je hem laden?",
     "RESTORE_STRAY_BACKUP": "Tijdens de laatste synchronisatie is er mogelijk een fout opgetreden. Wilt u de laatste back-up herstellen?"
   },
-  "DATETIME_INPUT": {
-    "IN": "op {{time}}",
-    "TOMORROW": "morgen {{time}}"
-  },
+  "DATETIME_INPUT": {},
   "DATETIME_SCHEDULE": {
     "LATER_TODAY": "Later vandaag",
     "NEXT_WEEK": "Volgende week",
@@ -610,7 +607,9 @@
         "MARK_AS_CHECKED": "Markeer updates als aangevinkt",
         "STATUS": "staat",
         "SUMMARY": "Samenvatting",
-        "TYPE": "Type"
+        "TYPE": "Type",
+        "ATTACHMENTS": "Bijlagen",
+        "UPLOAD_ATTACHMENT": "Uploaden naar taak"
       },
       "ISSUE_STRINGS": {
         "ISSUE_STR": "Werkpakket",
@@ -621,7 +620,8 @@
         "POST_TIME_SUCCESS": "OpenProject: tijdsinvoer voor {{issueTitle}}gemaakt",
         "TRANSITION": "OpenProject: Zet issue \"{{issueKey}}\" op \"{{name}}\"",
         "TRANSITION_SUCCESS": "OpenProject: Stel issue {{issueKey}} in op <strong>{{chosenTransition}}</strong>",
-        "TRANSITIONS_LOADED": "Overgangen geladen. Gebruik de onderstaande selecties om ze toe te wijzen"
+        "TRANSITIONS_LOADED": "Overgangen geladen. Gebruik de onderstaande selecties om ze toe te wijzen",
+        "ERR_NO_FILE": "Geen bestand geselecteerd"
       }
     },
     "PLANNER": {

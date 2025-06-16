@@ -31,10 +31,7 @@
     "RESTORE_FILE_BACKUP_ANDROID": "似乎没有数据，但有可用的备份。你想加载它吗？",
     "RESTORE_STRAY_BACKUP": "在上次同步期间，可能有一些错误。您要还原上一个备份吗？"
   },
-  "DATETIME_INPUT": {
-    "IN": "在 {{time}}",
-    "TOMORROW": "明天 {{time}}"
-  },
+  "DATETIME_INPUT": {},
   "DATETIME_SCHEDULE": {
     "LATER_TODAY": "今天稍后",
     "NEXT_WEEK": "下周",
@@ -526,7 +523,9 @@
         "MARK_AS_CHECKED": "将更新标记为已选中",
         "STATUS": "状态",
         "SUMMARY": "摘要",
-        "TYPE": "类型"
+        "TYPE": "类型",
+        "ATTACHMENTS": "附件",
+        "UPLOAD_ATTACHMENT": "上传到任务"
       },
       "ISSUE_STRINGS": {
         "ISSUE_STR": "工作包",
@@ -534,7 +533,8 @@
       },
       "S": {
         "ERR_UNKNOWN": "OpenProject：未知错误 {{statusCode}} {{errorMsg}}。是否为服务器正确配置了 CORS？",
-        "POST_TIME_SUCCESS": "OpenProject：已成功为 {{issueTitle}}创建时间条目"
+        "POST_TIME_SUCCESS": "OpenProject：已成功为 {{issueTitle}}创建时间条目",
+        "ERR_NO_FILE": "未选择文件"
       }
     },
     "PLANNER": {
