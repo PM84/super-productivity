@@ -61,6 +61,11 @@ snap:
   autoStart: true
   base: core22
   confinement: strict
+  plugs:
+    - default
+    - password-manager-service
+    - system-observe
+    - login-session-observe
 
 mac:
   appId: com.super-productivity.app
