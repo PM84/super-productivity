@@ -76,8 +76,29 @@ jobs:
           release: false
           github_token: ${{ secrets.github_token }}
 
+      - name: Move .appx files to correct directory
+        run: |
+          if (Test-Path "app-builds\*.appx") {
+            New-Item -ItemType Directory -Force -Path ".tmp\app-builds"
+            Move-Item -Path "app-builds\*.appx" -Destination ".tmp\app-builds\" -Force
+            Write-Host "Moved .appx files from app-builds to .tmp/app-builds"
+          } else {
+            Write-Host "No .appx files found in app-builds directory"
+          }
+        shell: powershell
+
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v4
         with:
           name: WinStoreRelease
-          path: app-builds/*.appx
+          path: .tmp/app-builds/*.appx
+#      - name: Upload to Microsoft Store
+#        if: startsWith(github.ref, 'refs/tags/v')
+#        uses: isaacrlevin/windows-store-action@1.0
+#        with:
+#          tenant-id: ${{ secrets.AZURE_AD_TENANT_ID }}
+#          client-id: ${{ secrets.AZURE_AD_CLIENT_ID }}
+#          client-secret: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
+#          app-id: ${{ secrets.MICROSOFT_STORE_APP_ID }}
+#          package-path: '.tmp/app-builds/*.appx'
+#          skip-polling: false

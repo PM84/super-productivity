@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { expandAnimation } from '../../../ui/animations/expand.ani';
 import { TaskCopy } from '../../tasks/task.model';
-import { Observable, of, Subject } from 'rxjs';
+import { from, Observable, of, Subject } from 'rxjs';
 import { GlobalConfigService } from '../../config/global-config.service';
 import { TaskService } from '../../tasks/task.service';
 import { first, map, switchMap, take, takeUntil, throttleTime } from 'rxjs/operators';
@@ -20,11 +20,11 @@ import {
   selectFocusModeMode,
   selectFocusSessionTimeElapsed,
 } from '../store/focus-mode.selectors';
-import { focusSessionDone, setFocusSessionActivePage } from '../store/focus-mode.actions';
-import { updateTask } from '../../tasks/store/task.actions';
+import { focusSessionDone } from '../store/focus-mode.actions';
+import { TaskSharedActions } from '../../../root-store/meta/task-shared.actions';
 import { SimpleCounterService } from '../../simple-counter/simple-counter.service';
 import { SimpleCounter } from '../../simple-counter/simple-counter.model';
-import { FocusModeMode, FocusModePage } from '../focus-mode.const';
+import { FocusModeMode } from '../focus-mode.const';
 import { ICAL_TYPE } from '../../issue/issue.const';
 import { TaskTitleComponent } from '../../../ui/task-title/task-title.component';
 import { ProgressCircleComponent } from '../../../ui/progress-circle/progress-circle.component';
@@ -41,6 +41,7 @@ import { SimpleCounterButtonComponent } from '../../simple-counter/simple-counte
 import { TaskAttachmentListComponent } from '../../tasks/task-attachment/task-attachment-list/task-attachment-list.component';
 import { slideInOutFromBottomAni } from '../../../ui/animations/slide-in-out-from-bottom.ani';
 import { FocusModeService } from '../focus-mode.service';
+import { BreathingDotComponent } from '../../../ui/breathing-dot/breathing-dot.component';
 
 @Component({
   selector: 'focus-mode-main',
@@ -51,6 +52,7 @@ import { FocusModeService } from '../focus-mode.service';
   imports: [
     TaskTitleComponent,
     ProgressCircleComponent,
+    BreathingDotComponent,
     MatIconButton,
     MatTooltip,
     MatIcon,
@@ -94,7 +96,7 @@ export class FocusModeMainComponent implements OnDestroy {
         return of(null);
       }
       return v.issueType && v.issueId && v.issueProviderId
-        ? this._issueService.issueLink$(v.issueType, v.issueId, v.issueProviderId)
+        ? from(this._issueService.issueLink(v.issueType, v.issueId, v.issueProviderId))
         : of(null);
     }),
     take(1),
@@ -173,7 +175,7 @@ export class FocusModeMainComponent implements OnDestroy {
   finishCurrentTask(): void {
     this._store.dispatch(focusSessionDone({}));
     this._store.dispatch(
-      updateTask({
+      TaskSharedActions.updateTask({
         task: {
           id: this.task?.id as string,
           changes: {
@@ -182,12 +184,6 @@ export class FocusModeMainComponent implements OnDestroy {
           },
         },
       }),
-    );
-  }
-
-  getProcrastinationHelp(): void {
-    this._store.dispatch(
-      setFocusSessionActivePage({ focusActivePage: FocusModePage.ProcrastinationHelp }),
     );
   }
 

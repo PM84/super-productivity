@@ -3,15 +3,14 @@ import {
   hideAddTaskBar,
   hideIssuePanel,
   hideNotesAndAddTaskPanel,
-  hideSearchBar,
   hideSideNav,
+  hideTaskViewCustomizerPanel,
   showAddTaskBar,
-  showSearchBar,
   toggleAddTaskBar,
   toggleIssuePanel,
-  toggleSearchBar,
   toggleShowNotes,
   toggleSideNav,
+  toggleTaskViewCustomizerPanel,
 } from './store/layout.actions';
 import { BehaviorSubject, EMPTY, merge, Observable, of } from 'rxjs';
 import { select, Store } from '@ngrx/store';
@@ -20,8 +19,8 @@ import {
   selectIsShowAddTaskBar,
   selectIsShowIssuePanel,
   selectIsShowNotes,
-  selectIsShowSearchBar,
   selectIsShowSideNav,
+  selectIsShowTaskViewCustomizerPanel,
 } from './store/layout.reducer';
 import { filter, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { BreakpointObserver } from '@angular/cdk/layout';
@@ -43,15 +42,15 @@ export class LayoutService {
   private _workContextService = inject(WorkContextService);
   private _breakPointObserver = inject(BreakpointObserver);
 
+  private _selectedTimeView$ = new BehaviorSubject<'week' | 'month'>('week');
+  readonly selectedTimeView$ = this._selectedTimeView$.asObservable();
+
   isScreenXs$: Observable<boolean> = this._breakPointObserver
     .observe([`(max-width: ${XS_MAX}px)`])
     .pipe(map((result) => result.matches));
 
   isShowAddTaskBar$: Observable<boolean> = this._store$.pipe(
     select(selectIsShowAddTaskBar),
-  );
-  isShowSearchBar$: Observable<boolean> = this._store$.pipe(
-    select(selectIsShowSearchBar),
   );
 
   isNavAlwaysVisible$: Observable<boolean> = this._breakPointObserver
@@ -86,12 +85,20 @@ export class LayoutService {
   );
   isShowNotes$: Observable<boolean> = this._isShowNotes$.pipe();
 
+  private _isShowTaskViewCustomizerPanel$: Observable<boolean> = this._store$.pipe(
+    select(selectIsShowTaskViewCustomizerPanel),
+  );
+  isShowTaskViewCustomizerPanel$: Observable<boolean> =
+    this._isShowTaskViewCustomizerPanel$.pipe();
+
   private _isShowIssuePanel$: Observable<boolean> = this._store$.pipe(
     select(selectIsShowIssuePanel),
   );
   isShowIssuePanel$: Observable<boolean> = this._isShowIssuePanel$.pipe();
 
   constructor() {
+    this.setTimeView('week');
+
     this.isNavOver$
       .pipe(
         switchMap((isNavOver) =>
@@ -123,18 +130,6 @@ export class LayoutService {
     this._store$.dispatch(toggleAddTaskBar());
   }
 
-  showSearchBar(): void {
-    this._store$.dispatch(showSearchBar());
-  }
-
-  hideSearchBar(): void {
-    this._store$.dispatch(hideSearchBar());
-  }
-
-  toggleSearchBar(): void {
-    this._store$.dispatch(toggleSearchBar());
-  }
-
   toggleSideNav(): void {
     this._store$.dispatch(toggleSideNav());
   }
@@ -157,5 +152,21 @@ export class LayoutService {
 
   hideAddTaskPanel(): void {
     this._store$.dispatch(hideIssuePanel());
+  }
+
+  getSelectedTimeView(): 'week' | 'month' {
+    return this._selectedTimeView$.value;
+  }
+
+  setTimeView(view: 'week' | 'month'): void {
+    this._selectedTimeView$.next(view);
+  }
+
+  toggleTaskViewCustomizerPanel(): void {
+    this._store$.dispatch(toggleTaskViewCustomizerPanel());
+  }
+
+  hideTaskViewCustomizerPanel(): void {
+    this._store$.dispatch(hideTaskViewCustomizerPanel());
   }
 }

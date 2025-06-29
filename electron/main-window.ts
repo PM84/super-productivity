@@ -18,6 +18,11 @@ import { readFileSync, stat } from 'fs';
 import { error, log } from 'electron-log/main';
 import { GlobalConfigState } from '../src/app/features/config/global-config.model';
 import { IS_MAC } from './common.const';
+import {
+  showOverlayWindow,
+  hideOverlayWindow,
+  destroyOverlayWindow,
+} from './overlay-indicator/overlay-indicator';
 
 let mainWin: BrowserWindow;
 
@@ -86,8 +91,13 @@ export const createWindow = ({
       nodeIntegration: false,
       // make remote module work with those two settings
       contextIsolation: true,
+      // Additional settings for better Linux/Wayland compatibility
+      enableBlinkFeatures: 'OverlayScrollbar',
     },
     icon: ICONS_FOLDER + '/icon_256x256.png',
+    // Wayland compatibility: disable transparent/frameless features that can cause issues
+    // transparent: false,
+    // frame: true,
   });
 
   // see: https://pratikpc.medium.com/bypassing-cors-with-electron-ab7eaf331605
@@ -132,7 +142,7 @@ export const createWindow = ({
     : IS_DEV
       ? 'http://localhost:4200'
       : format({
-          pathname: normalize(join(__dirname, '../dist/browser/index.html')),
+          pathname: normalize(join(__dirname, '../.tmp/angular-dist/browser/index.html')),
           protocol: 'file:',
           slashes: true,
         });
@@ -204,6 +214,24 @@ function initWinEventListeners(app: any): void {
   // TODO refactor quitting mess
   appCloseHandler(app);
   appMinimizeHandler(app);
+
+  // Handle restore and show events to hide overlay
+  mainWin.on('restore', () => {
+    hideOverlayWindow();
+  });
+
+  mainWin.on('show', () => {
+    hideOverlayWindow();
+  });
+
+  mainWin.on('focus', () => {
+    hideOverlayWindow();
+  });
+
+  // Handle hide event to show overlay
+  mainWin.on('hide', () => {
+    showOverlayWindow();
+  });
 }
 
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
@@ -253,6 +281,8 @@ const appCloseHandler = (app: App): void => {
 
   const _quitApp = (): void => {
     (app as any).isQuiting = true;
+    // Destroy overlay window before closing main window to ensure window-all-closed fires
+    destroyOverlayWindow();
     mainWin.close();
   };
 
@@ -266,6 +296,8 @@ const appCloseHandler = (app: App): void => {
     ids = ids.filter((idIn) => idIn !== id);
     log(IPC.BEFORE_CLOSE_DONE, id, ids);
     if (ids.length === 0) {
+      // Destroy overlay window before closing main window
+      destroyOverlayWindow();
       mainWin.close();
     }
   });
@@ -278,6 +310,7 @@ const appCloseHandler = (app: App): void => {
       getSettings(mainWin, (appCfg: GlobalConfigState) => {
         if (appCfg && appCfg.misc.isMinimizeToTray && !(app as any).isQuiting) {
           mainWin.hide();
+          showOverlayWindow();
           return;
         }
 
@@ -289,6 +322,12 @@ const appCloseHandler = (app: App): void => {
         }
       });
     }
+  });
+
+  mainWin.on('closed', () => {
+    // Dereference the window object
+    mainWin = null;
+    mainWinModule.win = null;
   });
 
   mainWin.webContents.on('render-process-gone', (event, detailed) => {
@@ -311,8 +350,13 @@ const appMinimizeHandler = (app: App): void => {
         if (appCfg.misc.isMinimizeToTray) {
           event.preventDefault();
           mainWin.hide();
-        } else if (IS_MAC) {
-          app.dock.show();
+          showOverlayWindow();
+        } else {
+          // For regular minimize (not to tray), also show overlay
+          showOverlayWindow();
+          if (IS_MAC) {
+            app.dock.show();
+          }
         }
       });
     });

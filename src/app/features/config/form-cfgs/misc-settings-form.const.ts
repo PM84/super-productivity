@@ -139,5 +139,20 @@ export const MISC_SETTINGS_FORM_CFG: ConfigFormSection<MiscConfig> = {
         label: T.GCF.MISC.IS_SHOW_TIP_LONGER,
       },
     },
+    {
+      key: 'isTrayShowCurrentCountdown',
+      type: 'checkbox',
+      templateOptions: {
+        label: T.GCF.MISC.IS_TRAY_SHOW_CURRENT_COUNTDOWN,
+      },
+    },
+    {
+      key: 'isOverlayIndicatorEnabled',
+      type: 'checkbox',
+      templateOptions: {
+        label: T.GCF.MISC.IS_OVERLAY_INDICATOR_ENABLED,
+      },
+      hideExpression: (model: any) => !model?.isTrayShowCurrentTask,
+    },
   ],
 };

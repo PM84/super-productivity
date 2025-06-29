@@ -55,6 +55,12 @@ import { CROSS_MODEL_MIGRATIONS } from './migrate/cross-model-migrations';
 import { appDataValidators, validateAllData } from './validate/validation-fn';
 import { fixEntityStateConsistency } from '../util/check-fix-entity-state-consistency';
 import { IValidation } from 'typia';
+import {
+  initialPluginMetaDataState,
+  initialPluginUserDataState,
+  PluginMetaDataState,
+  PluginUserDataState,
+} from '../plugins/plugin-persistence.model';
 
 export const CROSS_MODEL_VERSION = 4.1 as const;
 
@@ -79,6 +85,9 @@ export type PfapiAllModelCfg = {
   reminders: ModelCfg<Reminder[]>;
 
   timeTracking: ModelCfg<TimeTrackingState>;
+
+  pluginUserData: ModelCfg<PluginUserDataState | undefined>;
+  pluginMetadata: ModelCfg<PluginMetaDataState | undefined>;
 
   archiveYoung: ModelCfg<ArchiveModel>;
   archiveOld: ModelCfg<ArchiveModel>;
@@ -148,6 +157,16 @@ export const PFAPI_MODEL_CFGS: PfapiAllModelCfg = {
   },
 
   //-------------------------------
+  pluginUserData: {
+    defaultData: initialPluginUserDataState,
+    validate: appDataValidators.pluginUserData,
+  },
+  pluginMetadata: {
+    defaultData: initialPluginMetaDataState,
+    validate: appDataValidators.pluginMetadata,
+  },
+
+  //-------------------------------
   globalConfig: {
     defaultData: DEFAULT_GLOBAL_CONFIG,
     validate: appDataValidators.globalConfig,
@@ -207,6 +226,7 @@ export const PFAPI_MODEL_CFGS: PfapiAllModelCfg = {
 } as const;
 
 export const fileSyncElectron = new LocalFileSyncElectron();
+export const fileSyncDroid = new LocalFileSyncAndroid();
 
 export const PFAPI_SYNC_PROVIDERS = [
   new Dropbox({
@@ -215,7 +235,7 @@ export const PFAPI_SYNC_PROVIDERS = [
   }),
   new Webdav(environment.production ? undefined : `/DEV`),
   ...(IS_ELECTRON ? [fileSyncElectron] : []),
-  ...(IS_ANDROID_WEB_VIEW ? [new LocalFileSyncAndroid()] : []),
+  ...(IS_ANDROID_WEB_VIEW ? [fileSyncDroid] : []),
 ];
 
 export const PFAPI_CFG: PfapiBaseCfg<PfapiAllModelCfg> = {

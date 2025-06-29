@@ -1,5 +1,5 @@
 <a href="https://super-productivity.com/">
-  <img align="center" alt="Banner" src="screens/banner.png" />
+  <img align="center" alt="Banner" src="docs/screens/banner.png" />
 </a>
 
 <br>
@@ -89,13 +89,13 @@
        height="50" />
 </a>
 <a href='//apps.apple.com/de/app/super-productivity/id1482572463?l=en&mt=12' target="_blank">
-  <img src='./screens/app-store-badge.svg'
+  <img src='docs/screens/app-store-badge.svg'
        align="center"
        alt='App Store Badge'
        height="50" />
 </a>
 <a href='//play.google.com/store/apps/details?id=com.superproductivity.superproductivity' target="_blank">
-  <img src='./screens/google-play-badge.png'
+  <img src='docs/screens/google-play-badge.png'
        align="center"
        alt='Play Store Badge'
        height="50" />
@@ -264,7 +264,7 @@ brew install --cask superproductivity
 ```
 
 <a href='//apps.apple.com/de/app/super-productivity/id1482572463?l=en&mt=12' target="_blank">
-  <img src='./screens/app-store-badge.svg'
+  <img src='docs/screens/app-store-badge.svg'
        alt='App Store Badge'
        height="50" />
 </a>
@@ -280,7 +280,7 @@ Stay tuned for even more exciting updates!
 You can find the Android app here:
 
 <a href='//play.google.com/store/apps/details?id=com.superproductivity.superproductivity' target="_blank">
-  <img src='./screens/google-play-badge.png'
+  <img src='docs/screens/google-play-badge.png'
        align="center"
        alt='App Store Badge'
        height="50" />
@@ -323,11 +323,13 @@ There are several ways to help.
 
 9. **[Sponsor the project](https://github.com/sponsors/johannesjo)**
 
+10. **[Create custom plugins](docs/plugin-development.md)**: Extend Super Productivity with your own features and integrations by developing custom plugins.
+
 ### Running the development server
 
 If you don't want or cannot use Codespaces for any reason, here are the instructions for local development.
 
-To run the development server you need to have Node installed at least in the version 14. Go to https://nodejs.org for installation instructions.
+To run the development server you need to have Node installed (version 20 or higher required). Go to https://nodejs.org for installation instructions.
 
 **Clone repo**
 
@@ -425,6 +427,10 @@ docker compose up -d
 
 Additionally to accessing the web app from your browser at `http://localhost`, you can set up WebDAV synchronization with base url `http://localhost/webdav/`.
 
+### Other configuration of docker container
+
+You can provide the default values for WebDAV settings in the "Sync" section of the "Settings" page, via setting some environment variables of the docker container. This could be used for single user instances. Check out `docker-compose.yaml` in this repository for available environment variables.
+
 ## Custom themes (desktop only)
 
 In addition to color coding your projects and tags and to the dark and light theme you can also load completely custom CSS to restyle everything. To load a custom theme you simply need to put them into a new file named `styles.css` directly in the [user data folder](#user-data-folder).
@@ -460,3 +466,19 @@ You can specify a custom folder for saving your data by starting the application
 ```bash
 superproductivity --user-data-dir=/path/to/my/data
 ```
+
+### Linux/Wayland Compatibility
+
+If you're experiencing issues running Super Productivity on Wayland (such as rendering problems, VSync errors, or GLib-GObject warnings), you can force the application to use X11 mode by starting it with the `--force-x11` parameter:
+
+```bash
+superproductivity --force-x11
+```
+
+This will automatically apply compatibility fixes including:
+
+- Forcing the Ozone platform to use X11 instead of Wayland
+- Disabling GPU VSync to prevent GetVSyncParametersIfAvailable() errors
+- Setting the appropriate environment variables for X11 compatibility
+
+The application will automatically detect Wayland sessions and apply these fixes, but you can use this flag if automatic detection doesn't work properly.

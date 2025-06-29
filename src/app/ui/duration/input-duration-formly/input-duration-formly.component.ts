@@ -33,10 +33,6 @@ export class InputDurationFormlyComponent
 
   readonly input = viewChild.required('inputEl', { read: ElementRef });
 
-  onDestroy(): void {
-    window.clearTimeout(this._timeout);
-  }
-
   // @ViewChild(MatInput, {static: true}) formFieldControl?: MatInput;
   onInputValueChange(ev: Event): void {
     const val = (ev.target as HTMLInputElement).value;
@@ -45,10 +41,9 @@ export class InputDurationFormlyComponent
     this._updateValue(val);
   }
 
-  onKeyDown(ev: KeyboardEvent): void {
-    if (ev.key === 'Enter') {
-      const val = (ev.target as HTMLInputElement).value;
-      this._updateValue(val);
+  override ngOnDestroy(): void {
+    if (this._timeout) {
+      window.clearTimeout(this._timeout);
     }
   }
 

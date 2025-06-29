@@ -1,13 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import {
-  selectAllTaskRepeatCfgs,
-  selectTaskRepeatCfgById,
-  selectTaskRepeatCfgByIdAllowUndefined,
-  selectTaskRepeatCfgsDueOnDayIncludingOverdue,
-  selectTaskRepeatCfgsDueOnDayOnly,
-} from './store/task-repeat-cfg.reducer';
-import {
   addTaskRepeatCfgToTask,
   deleteTaskRepeatCfg,
   deleteTaskRepeatCfgs,
@@ -28,7 +21,7 @@ import { T } from '../../t.const';
 import { first, take } from 'rxjs/operators';
 import { TaskService } from '../tasks/task.service';
 import { Task } from '../tasks/task.model';
-import { addTask, scheduleTaskWithTime } from '../tasks/store/task.actions';
+import { TaskSharedActions } from '../../root-store/meta/task-shared.actions';
 import { WorkContextService } from '../work-context/work-context.service';
 import { WorkContextType } from '../work-context/work-context.model';
 import { isValidSplitTime } from '../../util/is-valid-split-time';
@@ -37,6 +30,14 @@ import { isSameDay } from '../../util/is-same-day';
 import { remindOptionToMilliseconds } from '../tasks/util/remind-option-to-milliseconds';
 import { getNewestPossibleDueDate } from './store/get-newest-possible-due-date.util';
 import { getWorklogStr } from '../../util/get-work-log-str';
+import { TODAY_TAG } from '../tag/tag.const';
+import {
+  selectAllTaskRepeatCfgs,
+  selectTaskRepeatCfgById,
+  selectTaskRepeatCfgByIdAllowUndefined,
+  selectTaskRepeatCfgsDueOnDayIncludingOverdue,
+  selectTaskRepeatCfgsDueOnDayOnly,
+} from './store/task-repeat-cfg.selectors';
 
 @Injectable({
   providedIn: 'root',
@@ -157,9 +158,9 @@ export class TaskRepeatCfgService {
   ): // NOTE: updateTaskRepeatCfg missing as there is no way to declare it as action type
   Promise<
     (
-      | ReturnType<typeof addTask>
+      | ReturnType<typeof TaskSharedActions.addTask>
       | ReturnType<typeof updateTaskRepeatCfg>
-      | ReturnType<typeof scheduleTaskWithTime>
+      | ReturnType<typeof TaskSharedActions.scheduleTaskWithTime>
     )[]
   > {
     // NOTE: there might be multiple configs in case something went wrong
@@ -191,11 +192,11 @@ export class TaskRepeatCfgService {
     const { task, isAddToBottom } = this._getTaskRepeatTemplate(taskRepeatCfg);
 
     const createNewActions: (
-      | ReturnType<typeof addTask>
+      | ReturnType<typeof TaskSharedActions.addTask>
       | ReturnType<typeof updateTaskRepeatCfg>
-      | ReturnType<typeof scheduleTaskWithTime>
+      | ReturnType<typeof TaskSharedActions.scheduleTaskWithTime>
     )[] = [
-      addTask({
+      TaskSharedActions.addTask({
         task: {
           ...task,
           // NOTE if moving this to top isCreateNew check above would not work as intended
@@ -226,7 +227,7 @@ export class TaskRepeatCfgService {
         targetDayDate,
       );
       createNewActions.push(
-        scheduleTaskWithTime({
+        TaskSharedActions.scheduleTaskWithTime({
           task,
           dueWithTime: dateTime,
           remindAt: remindOptionToMilliseconds(dateTime, taskRepeatCfg.remindAt),
@@ -248,11 +249,12 @@ export class TaskRepeatCfgService {
         title: taskRepeatCfg.title,
         additional: {
           repeatCfgId: taskRepeatCfg.id,
-          timeEstimate: taskRepeatCfg.defaultEstimate,
+          timeEstimate: taskRepeatCfg.defaultEstimate || 0,
           projectId: taskRepeatCfg.projectId || undefined,
           notes: taskRepeatCfg.notes || '',
           // always due for today
           dueDay: getWorklogStr(),
+          tagIds: taskRepeatCfg.tagIds.filter((tagId) => tagId !== TODAY_TAG.id),
         },
       }),
       isAddToBottom: taskRepeatCfg.order > 0,

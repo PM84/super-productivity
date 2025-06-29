@@ -38,7 +38,7 @@ export class ModelCtrl<MT extends ModelBase> {
    * @param p
    * @returns Promise resolving after save operation
    */
-  save(
+  async save(
     data: MT,
     p?: { isUpdateRevAndLastUpdate: boolean; isIgnoreDBLock?: boolean },
   ): Promise<unknown> {
@@ -46,23 +46,35 @@ export class ModelCtrl<MT extends ModelBase> {
     pfLog(2, `___ ${ModelCtrl.L}.${this.save.name}()`, this.modelId, p, data);
 
     // Validate data if validator is available
-    if (this.modelCfg.validate && !this.modelCfg.validate(data).success) {
-      if (this.modelCfg.repair) {
-        try {
-          data = this.modelCfg.repair(data);
-        } catch (e) {
-          console.error(e);
-          throw new ModelValidationError({ id: this.modelId, data, e });
+    if (this.modelCfg.validate) {
+      const validationResult = this.modelCfg.validate(data);
+      if (!validationResult.success) {
+        if (this.modelCfg.repair) {
+          try {
+            data = this.modelCfg.repair(data);
+          } catch (e) {
+            console.error(e);
+            throw new ModelValidationError({
+              id: this.modelId,
+              data,
+              validationResult,
+              e,
+            });
+          }
+        } else {
+          throw new ModelValidationError({ id: this.modelId, data, validationResult });
         }
-      } else {
-        throw new ModelValidationError({ id: this.modelId, data });
       }
     }
 
     // Update revision if requested
     const isIgnoreDBLock = !!p?.isIgnoreDBLock;
     if (p?.isUpdateRevAndLastUpdate) {
-      this._metaModel.updateRevForModel(this.modelId, this.modelCfg, isIgnoreDBLock);
+      await this._metaModel.updateRevForModel(
+        this.modelId,
+        this.modelCfg,
+        isIgnoreDBLock,
+      );
     }
 
     // Save data to database

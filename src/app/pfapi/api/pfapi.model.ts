@@ -3,7 +3,6 @@ import { ModelCtrl } from './model-ctrl/model-ctrl';
 import { ConflictReason, SyncProviderId, SyncStatus } from './pfapi.const';
 import { DropboxPrivateCfg } from './sync/providers/dropbox/dropbox';
 import { WebdavPrivateCfg } from './sync/providers/webdav/webdav';
-import { LocalFileSyncElectronPrivateCfg } from './sync/providers/local-file-sync/local-file-sync-electron';
 import { IValidation } from 'typia';
 
 type JSONPrimitive = string | number | boolean | null;
@@ -89,13 +88,37 @@ export interface RevMap {
 
 export interface MetaFileBase {
   lastUpdate: number;
+  lastUpdateAction?: string;
   revMap: RevMap;
   crossModelVersion: number;
+  // Change tracking fields - support both old and new names for backwards compatibility
+  localLamport: number;
+  lastSyncedLamport: number | null;
+  // New field names (will be migrated to gradually)
+  localChangeCounter?: number;
+  lastSyncedChangeCounter?: number | null;
+  lastSyncedAction?: string;
+  // Vector clock fields for improved conflict detection
+  vectorClock?: VectorClock;
+  lastSyncedVectorClock?: VectorClock | null;
+}
+
+export interface VectorClock {
+  [clientId: string]: number;
 }
 
 export interface RemoteMeta extends MetaFileBase {
   mainModelData: MainModelData;
   isFullData?: boolean;
+}
+
+export interface UploadMeta
+  extends Omit<
+    RemoteMeta,
+    'lastSyncedLamport' | 'lastSyncedChangeCounter' | 'lastSyncedVectorClock'
+  > {
+  lastSyncedLamport: null;
+  lastSyncedChangeCounter?: null;
 }
 
 export interface LocalMeta extends MetaFileBase {
@@ -150,15 +173,23 @@ export interface SyncProviderPrivateCfgBase {
   encryptKey?: string;
 }
 
+// Local file sync config that works for both platforms
+export interface LocalFileSyncPrivateCfg extends SyncProviderPrivateCfgBase {
+  // Electron specific
+  syncFolderPath?: string;
+  // Android SAF specific
+  safFolderUri?: string;
+}
+
 // TODO better dynamic typing
 export type SyncProviderPrivateCfg =
   | DropboxPrivateCfg
   | WebdavPrivateCfg
-  | LocalFileSyncElectronPrivateCfg;
+  | LocalFileSyncPrivateCfg;
 
 export type PrivateCfgByProviderId<T extends SyncProviderId> =
   T extends SyncProviderId.LocalFile
-    ? LocalFileSyncElectronPrivateCfg
+    ? LocalFileSyncPrivateCfg
     : T extends SyncProviderId.WebDAV
       ? WebdavPrivateCfg
       : T extends SyncProviderId.Dropbox
